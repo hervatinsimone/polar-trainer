@@ -624,9 +624,7 @@ function renderConnect() {
     </div>
     <div class="connect-wrap">
       <div class="connect-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-          <path d="M6.5 6.5l11 11M17.5 6.5l-11 11M12 2v4M12 18v4M2 12h4M18 12h4"/>
-        </svg>
+        <img src="icon.svg" alt="Burnr" style="width:56px;height:56px;">
       </div>
       <div class="connect-text">
         <h2>Polar H10 verbinden</h2>

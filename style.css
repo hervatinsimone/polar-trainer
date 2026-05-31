@@ -630,10 +630,10 @@ html, body {
   padding: calc(var(--safe-top) + 48px) 20px calc(var(--safe-bottom) + 32px);
   justify-content: space-between;
 }
-.onboarding-top {}
+.onboarding-top { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .onboarding-icon {
-  width: 64px; height: 64px;
-  margin-bottom: 28px;
+  width: 80px; height: 80px;
+  margin-bottom: 24px;
 }
 .onboarding-title {
   font-size: 32px;
@@ -814,7 +814,7 @@ html, body {
 /* === QUOTE === */
 .quote-text {
   font-size: 21px;
-  font-weight: 600;
+  font-weight: 400;
   font-style: italic;
   color: var(--accent);
   line-height: 1.45;
