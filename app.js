@@ -602,11 +602,7 @@ function renderHome() {
           </div>
         </div>
       </div>
-    ` : `
-      <div class="card" style="text-align:center;padding:32px 20px">
-        <p style="color:var(--text-muted);font-size:15px;line-height:1.6">Verbinde deinen Polar H10<br>und starte dein erstes Training.</p>
-      </div>
-    `}
+    ` : ''}
     <div class="spacer"></div>
   `;
 }
