@@ -354,7 +354,6 @@ function showWorkoutView() {
   el.innerHTML = `
     <div class="workout-header">
       <span id="workout-timer" class="workout-timer">00:00</span>
-      <div class="workout-active-dot"></div>
       <div class="workout-signal">
         <span id="signal-dot" class="status-dot" style="background:#888"></span>
         <span>H10</span>
@@ -364,7 +363,6 @@ function showWorkoutView() {
     <div id="wview-calories" class="workout-tab-content">
       <div class="hr-display">
         <div id="hr-value" class="hr-value no-signal">--</div>
-        <div class="hr-unit">BPM</div>
       </div>
       <div id="zone-pill" class="zone-pill" style="background:var(--bg-elevated);color:var(--text-muted)">
         Warte auf Signal…
@@ -391,7 +389,6 @@ function showWorkoutView() {
 
     <div id="wview-pause" class="workout-tab-content hidden">
       <div class="rest-section">
-        <div class="rest-label">PAUSENTIMER</div>
         <div class="rest-display">
           <span id="rest-value" class="rest-big">${savedDuration}</span>
           <span class="rest-unit">s</span>
@@ -406,8 +403,8 @@ function showWorkoutView() {
     </div>
 
     <div class="workout-tabs">
-      <button class="workout-tab active" id="tab-calories">🔥 Kalorien</button>
-      <button class="workout-tab" id="tab-pause">⏸ Pause</button>
+      <button class="workout-tab active" id="tab-calories">Training</button>
+      <button class="workout-tab" id="tab-pause">Pause</button>
     </div>
 
     <div class="workout-footer">
