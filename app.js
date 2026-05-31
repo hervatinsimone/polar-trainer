@@ -96,6 +96,19 @@ function setConnectStatus(type, text) {
   if (!dot || !txt) return;
   dot.className = 'status-dot ' + type;
   txt.textContent = text;
+
+  if (type === 'connected') {
+    const connectBtn = document.getElementById('connect-btn');
+    const startBtn   = document.getElementById('start-workout-btn');
+    if (connectBtn) {
+      connectBtn.textContent = 'Verbunden ✓';
+      connectBtn.disabled = true;
+      connectBtn.className = 'btn btn-secondary';
+    }
+    if (startBtn) {
+      startBtn.className = 'btn btn-success';
+    }
+  }
 }
 
 function onBtDisconnect() {
@@ -364,9 +377,6 @@ function showWorkoutView() {
       <div class="hr-display">
         <div id="hr-value" class="hr-value no-signal">--</div>
       </div>
-      <div id="zone-pill" class="zone-pill" style="background:var(--bg-elevated);color:var(--text-muted)">
-        Warte auf Signal…
-      </div>
       <div class="workout-stats">
         <div class="workout-stat">
           <div id="cal-value" class="workout-stat-value">0</div>
@@ -398,7 +408,7 @@ function showWorkoutView() {
             <button class="rest-btn ${s === savedDuration ? 'active' : ''}" data-sec="${s}">${s}s</button>
           `).join('')}
         </div>
-        <button class="btn btn-primary" id="rest-start-btn">Start</button>
+        <button class="btn btn-success" id="rest-start-btn">Start</button>
       </div>
     </div>
 

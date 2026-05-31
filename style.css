@@ -134,6 +134,7 @@ html, body {
 .btn:active { transform: scale(0.97); opacity: 0.9; }
 .btn-primary { background: var(--accent); color: #141414; }
 .btn-secondary { background: var(--bg-elevated); color: var(--text); }
+.btn-success { background: #22c55e; color: #141414; }
 .btn-danger { background: #2a1515; color: var(--z5); border: 1px solid #3d1f1f; }
 .btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
@@ -708,6 +709,7 @@ html, body {
 }
 .workout-tab:active { transform: scale(0.97); }
 .workout-tab.active { background: var(--accent); color: #141414; }
+#tab-pause.active { background: #22c55e; color: #141414; }
 
 /* === WORKOUT ACTIVE DOT === */
 .workout-active-dot {
