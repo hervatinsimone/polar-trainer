@@ -332,8 +332,7 @@ function updateRestDisplay(remaining, total) {
   const el = document.getElementById('rest-value');
   if (!el) return;
   el.textContent = remaining;
-  const pct = total ? remaining / total : 1;
-  el.style.color = pct > 0.5 ? 'var(--text)' : pct > 0.25 ? '#D4A843' : '#ef4444';
+  el.style.color = remaining <= 10 ? '#ef4444' : 'var(--accent)';
 }
 
 function switchWorkoutView(view) {

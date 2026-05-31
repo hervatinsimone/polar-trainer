@@ -709,7 +709,6 @@ html, body {
 }
 .workout-tab:active { transform: scale(0.97); }
 .workout-tab.active { background: var(--accent); color: #141414; }
-#tab-pause.active { background: #22c55e; color: #141414; }
 
 /* === WORKOUT ACTIVE DOT === */
 .workout-active-dot {
@@ -760,6 +759,7 @@ html, body {
   letter-spacing: -3px;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  color: var(--accent);
   transition: color 0.3s;
 }
 .rest-unit {
