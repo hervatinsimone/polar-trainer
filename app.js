@@ -455,7 +455,8 @@ function renderOnboarding() {
     <div class="onboarding-wrap">
       <div class="onboarding-top">
         <img src="icon.svg" class="onboarding-icon" alt="">
-        <h1 class="onboarding-title">Dein<br><span>Krafttraining</span><br>Tracker.</h1>
+        <h1 class="onboarding-title"><span>Burnr.</span></h1>
+        <h2 style="font-size:20px;font-weight:600;color:var(--text-muted);margin-top:8px">Dein Krafttraining Tracker.</h2>
         <p class="onboarding-sub">Verbindet sich mit deinem Polar H10 – Herzfrequenz, Zonen und Kalorien live.</p>
         <div class="spacer-lg"></div>
         <div class="onboarding-form">

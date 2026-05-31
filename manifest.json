@@ -1,6 +1,6 @@
 {
-  "name": "Polar Trainer",
-  "short_name": "Trainer",
+  "name": "Burnr",
+  "short_name": "Burnr",
   "description": "Herzfrequenz & Kalorientracker mit Polar H10",
   "start_url": "./index.html",
   "display": "standalone",
