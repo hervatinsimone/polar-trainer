@@ -59,6 +59,7 @@ function navigate(view) {
   else if (view === 'connect'){ app.innerHTML = renderConnect();    bindConnect(); }
   else if (view === 'workout'){ showWorkoutView(); }
   else if (view === 'summary'){ app.innerHTML = renderSummary();    bindSummary(); }
+  else if (view === 'timer')  { app.innerHTML = renderTimer();      bindTimer(); }
   else if (view === 'history'){ app.innerHTML = renderHistory();    bindHistory(); }
   else if (view === 'profile'){ app.innerHTML = renderProfile();    bindProfile(); }
 }
@@ -654,10 +655,39 @@ function renderSummary() {
   `;
 }
 
+function renderTimer() {
+  const d = state.restDuration || 120;
+  return `
+    <div class="page-header">
+      <span class="page-title">Pausentimer</span>
+    </div>
+    <div class="timer-page">
+      <div class="rest-display" style="margin-top:24px">
+        <span id="rest-value" class="rest-big">${d}</span>
+        <span class="rest-unit">s</span>
+      </div>
+      <div class="rest-presets" id="rest-presets">
+        ${[90,120,150,180].map(s => `
+          <button class="rest-btn ${s === d ? 'active' : ''}" data-sec="${s}">${s}s</button>
+        `).join('')}
+      </div>
+      <button class="btn btn-primary" id="rest-start-btn" style="width:100%">Start</button>
+    </div>
+  `;
+}
+
+function bindTimer() {
+  document.querySelectorAll('.rest-btn').forEach(btn => {
+    btn.addEventListener('click', () => setRestDuration(parseInt(btn.dataset.sec)));
+  });
+  document.getElementById('rest-start-btn').addEventListener('click', startRestTimer);
+}
+
 function renderHistory() {
   return `
     <div class="page-header">
       <span class="page-title">Verlauf</span>
+      ${state.history.length > 0 ? `<button class="delete-all-btn" id="delete-all-btn">Alle löschen</button>` : ''}
     </div>
     <div class="spacer-sm"></div>
     ${state.history.length === 0 ? `
@@ -669,11 +699,16 @@ function renderHistory() {
       </div>
     ` : `
       <div class="history-list">
-        ${state.history.map((w, idx) => `
-          <div class="history-item" data-idx="${idx}">
+        ${state.history.map((w) => `
+          <div class="history-item">
             <div class="history-item-header">
               <span class="history-item-date">${formatDate(w.date)}</span>
               <span class="history-item-duration">${formatDuration(w.duration)}</span>
+              <button class="history-delete-btn" data-id="${w.id}" aria-label="Löschen">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+                </svg>
+              </button>
             </div>
             <div class="history-item-stats">
               <div class="history-stat">
@@ -790,7 +825,19 @@ function bindSummary() {
 }
 
 function bindHistory() {
-  // tap on item → show detail (future enhancement)
+  document.getElementById('delete-all-btn')?.addEventListener('click', () => {
+    if (confirm('Gesamten Verlauf löschen?')) {
+      state.history = [];
+      localStorage.setItem('pth_history', '[]');
+      navigate('history');
+    }
+  });
+  document.querySelectorAll('.history-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      deleteWorkoutFromHistory(parseInt(btn.dataset.id));
+      navigate('history');
+    });
+  });
 }
 
 function bindProfile() {

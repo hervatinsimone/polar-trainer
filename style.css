@@ -808,6 +808,48 @@ html, body {
   margin: -4px 16px 12px;
 }
 
+/* === TIMER PAGE === */
+.timer-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 20px 24px;
+}
+
+/* === HISTORY DELETE === */
+.history-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.history-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.history-delete-btn:active { opacity: 1; color: var(--z5); }
+
+.delete-all-btn {
+  background: none;
+  border: none;
+  color: var(--z5);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.7;
+  padding: 4px 0;
+}
+.delete-all-btn:active { opacity: 1; }
+
 /* === UTILS === */
 .spacer-sm { height: 8px; }
 .spacer { height: 16px; }
