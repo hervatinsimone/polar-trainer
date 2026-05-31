@@ -1,4 +1,4 @@
-const CACHE = 'polar-trainer-v1';
+const CACHE = 'burnr-v3';
 const ASSETS = [
   './index.html',
   './style.css',
