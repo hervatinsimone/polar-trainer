@@ -140,7 +140,15 @@ html, body {
 
 /* === HOME === */
 .home-hero {
-  padding: 28px 20px 20px;
+  padding: 48px 24px 0;
+}
+.home-spacer {
+  flex: 1;
+  min-height: 48px;
+  max-height: 120px;
+}
+.home-bottom {
+  padding: 0 16px 24px;
 }
 .home-greeting {
   font-size: 14px;
@@ -165,9 +173,6 @@ html, body {
 .stats-2 {
   grid-template-columns: repeat(2, 1fr);
 }
-.home-hero {
-  padding-bottom: 8px;
-}
 .stat-chip {
   background: var(--bg-card);
   border-radius: var(--radius-sm);
@@ -186,6 +191,8 @@ html, body {
   color: var(--text-muted);
   margin-top: 4px;
   font-weight: 500;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .start-btn-wrap { padding: 0 16px 16px; }

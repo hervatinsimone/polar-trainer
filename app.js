@@ -544,12 +544,22 @@ function renderOnboarding() {
   `;
 }
 
+function countActiveWeeks(history) {
+  const keys = new Set(history.map(w => {
+    const d = new Date(w.date);
+    const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+    return `${d.getFullYear()}-${Math.ceil(dayOfYear / 7)}`;
+  }));
+  return keys.size;
+}
+
 function renderHome() {
   const quote = getDailyQuote();
   const weekWorkouts = state.history.filter(w =>
     (Date.now() - new Date(w.date)) / 86400000 <= 7
   );
   const weekCal = weekWorkouts.reduce((s, w) => s + w.calories, 0);
+  const activeWeeks = countActiveWeeks(state.history);
 
   return `
     <div class="home-hero">
@@ -557,23 +567,26 @@ function renderHome() {
       ${quote.author ? `<div class="quote-author">— ${quote.author}</div>` : ''}
     </div>
 
-    <div class="spacer-lg"></div>
+    <div class="home-spacer"></div>
 
-    <div class="stats-strip stats-2">
+    <div class="stats-strip">
+      <div class="stat-chip">
+        <div class="stat-chip-value">${activeWeeks}</div>
+        <div class="stat-chip-label">aktive<br>Wochen</div>
+      </div>
       <div class="stat-chip">
         <div class="stat-chip-value">${weekWorkouts.length}</div>
-        <div class="stat-chip-label">Workouts<br>diese Woche</div>
+        <div class="stat-chip-label">Workouts/<br>Woche</div>
       </div>
       <div class="stat-chip">
         <div class="stat-chip-value">${weekCal > 999 ? (weekCal/1000).toFixed(1)+'k' : weekCal}</div>
-        <div class="stat-chip-label">kcal<br>diese Woche</div>
+        <div class="stat-chip-label">kcal/<br>Woche</div>
       </div>
     </div>
 
-    <div class="start-btn-wrap">
+    <div class="home-bottom">
       <button class="btn btn-primary" id="go-connect-btn">Training starten</button>
     </div>
-    <div class="spacer"></div>
   `;
 }
 
