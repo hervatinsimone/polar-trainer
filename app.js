@@ -545,64 +545,34 @@ function renderOnboarding() {
 }
 
 function renderHome() {
-  const p = state.profile;
-  const last = state.history[0];
-  const weekWorkouts = state.history.filter(w => {
-    const d = new Date(w.date);
-    const now = new Date();
-    const diff = (now - d) / 1000 / 60 / 60 / 24;
-    return diff <= 7;
-  });
-  const totalCal = state.history.reduce((s, w) => s + w.calories, 0);
+  const quote = getDailyQuote();
+  const weekWorkouts = state.history.filter(w =>
+    (Date.now() - new Date(w.date)) / 86400000 <= 7
+  );
+  const weekCal = weekWorkouts.reduce((s, w) => s + w.calories, 0);
 
   return `
     <div class="home-hero">
-      <div class="quote-text">${getDailyQuote().text}</div>
-      ${getDailyQuote().author ? `<div class="quote-author">— ${getDailyQuote().author}</div>` : ''}
+      <div class="quote-text">${quote.text}</div>
+      ${quote.author ? `<div class="quote-author">— ${quote.author}</div>` : ''}
     </div>
 
-    <div class="stats-strip">
-      <div class="stat-chip">
-        <div class="stat-chip-value">${state.history.length}</div>
-        <div class="stat-chip-label">Workouts</div>
-      </div>
+    <div class="spacer-lg"></div>
+
+    <div class="stats-strip stats-2">
       <div class="stat-chip">
         <div class="stat-chip-value">${weekWorkouts.length}</div>
-        <div class="stat-chip-label">Diese Woche</div>
+        <div class="stat-chip-label">Workouts<br>diese Woche</div>
       </div>
       <div class="stat-chip">
-        <div class="stat-chip-value">${totalCal > 999 ? (totalCal/1000).toFixed(1)+'k' : totalCal}</div>
-        <div class="stat-chip-label">kcal gesamt</div>
+        <div class="stat-chip-value">${weekCal > 999 ? (weekCal/1000).toFixed(1)+'k' : weekCal}</div>
+        <div class="stat-chip-label">kcal<br>diese Woche</div>
       </div>
     </div>
 
     <div class="start-btn-wrap">
       <button class="btn btn-primary" id="go-connect-btn">Training starten</button>
     </div>
-
-    ${last ? `
-      <div class="card last-workout-card">
-        <div class="last-workout-title">Letztes Training · ${formatDate(last.date)}</div>
-        <div class="last-workout-stats">
-          <div>
-            <div class="lw-stat-value">${last.avgHR}</div>
-            <div class="lw-stat-label">Ø BPM</div>
-          </div>
-          <div>
-            <div class="lw-stat-value">${last.calories}</div>
-            <div class="lw-stat-label">kcal</div>
-          </div>
-          <div>
-            <div class="lw-stat-value">${formatDuration(last.duration)}</div>
-            <div class="lw-stat-label">Dauer</div>
-          </div>
-          <div>
-            <div class="lw-stat-value">${last.maxHR}</div>
-            <div class="lw-stat-label">Max BPM</div>
-          </div>
-        </div>
-      </div>
-    ` : ''}
     <div class="spacer"></div>
   `;
 }

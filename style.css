@@ -162,6 +162,12 @@ html, body {
   padding: 0 16px;
   margin-bottom: 20px;
 }
+.stats-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.home-hero {
+  padding-bottom: 8px;
+}
 .stat-chip {
   background: var(--bg-card);
   border-radius: var(--radius-sm);
