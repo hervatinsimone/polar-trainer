@@ -6,9 +6,12 @@ const state = {
   view: 'boot',
   profile: null,
   bt: { device: null, char: null, connected: false },
-  workout: null,          // active workout object
-  pendingSummary: null,   // workout waiting to be saved
+  workout: null,
+  pendingSummary: null,
   history: [],
+  restDuration: 120,
+  restTimerRef: null,
+  restTimerActive: false,
 };
 
 // ─── STORAGE ──────────────────────────────────────────────────────────────────
@@ -25,6 +28,10 @@ function loadHistory() {
 }
 function saveWorkoutToHistory(w) {
   state.history.unshift(w);
+  localStorage.setItem('pth_history', JSON.stringify(state.history));
+}
+function deleteWorkoutFromHistory(id) {
+  state.history = state.history.filter(w => w.id !== id);
   localStorage.setItem('pth_history', JSON.stringify(state.history));
 }
 
@@ -239,14 +246,14 @@ function endWorkout() {
   const w = state.workout;
   if (!w) return;
   clearInterval(w.timerRef);
+  stopRestTimer();
 
   const hrSamples = w.hrHistory.map(s => s.hr);
   const avgHR = hrSamples.length
-    ? Math.round(hrSamples.reduce((a, b) => a + b, 0) / hrSamples.length)
-    : 0;
+    ? Math.round(hrSamples.reduce((a, b) => a + b, 0) / hrSamples.length) : 0;
   const maxHRReached = hrSamples.length ? Math.max(...hrSamples) : 0;
 
-  state.pendingSummary = {
+  const savedWorkout = {
     id: Date.now(),
     date: new Date().toISOString(),
     duration: w.elapsed,
@@ -256,9 +263,81 @@ function endWorkout() {
     zoneTimes: [...w.zoneTimes],
   };
 
+  saveWorkoutToHistory(savedWorkout);
+  state.pendingSummary = savedWorkout;
   state.workout = null;
   disconnectBt();
   navigate('summary');
+}
+
+// ─── REST TIMER ───────────────────────────────────────────────────────────────
+
+function setRestDuration(sec) {
+  state.restDuration = sec;
+  localStorage.setItem('pth_rest_duration', sec);
+  document.querySelectorAll('.rest-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.sec) === sec);
+  });
+  if (!state.restTimerActive) updateRestDisplay(sec, sec);
+}
+
+function startRestTimer() {
+  if (state.restTimerActive) { stopRestTimer(); return; }
+  const duration = state.restDuration || 120;
+  let remaining = duration;
+  state.restTimerActive = true;
+  const startBtn = document.getElementById('rest-start-btn');
+  const presets  = document.getElementById('rest-presets');
+  if (startBtn) startBtn.textContent = 'Stopp';
+  if (presets)  presets.style.opacity = '0.4';
+  updateRestDisplay(remaining, duration);
+  state.restTimerRef = setInterval(() => {
+    remaining--;
+    updateRestDisplay(remaining, duration);
+    if (remaining <= 0) {
+      stopRestTimer();
+      if ('vibrate' in navigator) navigator.vibrate([400, 150, 400, 150, 400]);
+      const rv = document.getElementById('rest-value');
+      if (rv) { rv.textContent = '✓'; rv.style.color = '#22c55e'; }
+      if (presets) presets.style.opacity = '1';
+      setTimeout(() => updateRestDisplay(state.restDuration, state.restDuration), 2000);
+    }
+  }, 1000);
+}
+
+function stopRestTimer() {
+  if (state.restTimerRef) { clearInterval(state.restTimerRef); state.restTimerRef = null; }
+  state.restTimerActive = false;
+  const startBtn = document.getElementById('rest-start-btn');
+  const presets  = document.getElementById('rest-presets');
+  if (startBtn) startBtn.textContent = 'Start';
+  if (presets)  presets.style.opacity = '1';
+}
+
+function updateRestDisplay(remaining, total) {
+  const el = document.getElementById('rest-value');
+  if (!el) return;
+  el.textContent = remaining;
+  const pct = total ? remaining / total : 1;
+  el.style.color = pct > 0.5 ? 'var(--text)' : pct > 0.25 ? '#D4A843' : '#ef4444';
+}
+
+function switchWorkoutView(view) {
+  const calView   = document.getElementById('wview-calories');
+  const pauseView = document.getElementById('wview-pause');
+  const tabCal    = document.getElementById('tab-calories');
+  const tabPause  = document.getElementById('tab-pause');
+  if (view === 'calories') {
+    calView?.classList.remove('hidden');
+    pauseView?.classList.add('hidden');
+    tabCal?.classList.add('active');
+    tabPause?.classList.remove('active');
+  } else {
+    calView?.classList.add('hidden');
+    pauseView?.classList.remove('hidden');
+    tabCal?.classList.remove('active');
+    tabPause?.classList.add('active');
+  }
 }
 
 // ─── WORKOUT VIEW (full-screen overlay) ───────────────────────────────────────
@@ -266,6 +345,7 @@ function endWorkout() {
 function showWorkoutView() {
   const existing = document.getElementById('view-workout');
   if (existing) existing.remove();
+  const savedDuration = state.restDuration || 120;
 
   const el = document.createElement('div');
   el.id = 'view-workout';
@@ -273,22 +353,21 @@ function showWorkoutView() {
   el.innerHTML = `
     <div class="workout-header">
       <span id="workout-timer" class="workout-timer">00:00</span>
+      <div class="workout-active-dot"></div>
       <div class="workout-signal">
         <span id="signal-dot" class="status-dot" style="background:#888"></span>
-        <span id="signal-label">Polar H10</span>
+        <span>H10</span>
       </div>
     </div>
 
-    <div class="workout-main">
+    <div id="wview-calories" class="workout-tab-content">
       <div class="hr-display">
         <div id="hr-value" class="hr-value no-signal">--</div>
         <div class="hr-unit">BPM</div>
       </div>
-
       <div id="zone-pill" class="zone-pill" style="background:var(--bg-elevated);color:var(--text-muted)">
         Warte auf Signal…
       </div>
-
       <div class="workout-stats">
         <div class="workout-stat">
           <div id="cal-value" class="workout-stat-value">0</div>
@@ -299,8 +378,7 @@ function showWorkoutView() {
           <div class="workout-stat-label">Max BPM</div>
         </div>
       </div>
-
-      <div class="zone-bars" id="zone-bars">
+      <div class="zone-bars">
         ${[0,1,2,3,4].map(i => `
           <div class="zone-bar-wrap">
             <div id="zbar-${i}" class="zone-bar" style="height:3px;background:${ZONE_COLORS[i]}"></div>
@@ -310,15 +388,40 @@ function showWorkoutView() {
       </div>
     </div>
 
+    <div id="wview-pause" class="workout-tab-content hidden">
+      <div class="rest-section">
+        <div class="rest-label">PAUSENTIMER</div>
+        <div class="rest-display">
+          <span id="rest-value" class="rest-big">${savedDuration}</span>
+          <span class="rest-unit">s</span>
+        </div>
+        <div class="rest-presets" id="rest-presets">
+          ${[90,120,150,180].map(s => `
+            <button class="rest-btn ${s === savedDuration ? 'active' : ''}" data-sec="${s}">${s}s</button>
+          `).join('')}
+        </div>
+        <button class="btn btn-primary" id="rest-start-btn">Start</button>
+      </div>
+    </div>
+
+    <div class="workout-tabs">
+      <button class="workout-tab active" id="tab-calories">🔥 Kalorien</button>
+      <button class="workout-tab" id="tab-pause">⏸ Pause</button>
+    </div>
+
     <div class="workout-footer">
       <button class="btn btn-danger" id="end-workout-btn">Training beenden</button>
     </div>
   `;
   document.body.appendChild(el);
 
-  document.getElementById('end-workout-btn').addEventListener('click', () => {
-    showEndConfirm();
+  document.getElementById('end-workout-btn').addEventListener('click', showEndConfirm);
+  document.getElementById('tab-calories').addEventListener('click', () => switchWorkoutView('calories'));
+  document.getElementById('tab-pause').addEventListener('click', () => switchWorkoutView('pause'));
+  document.querySelectorAll('.rest-btn').forEach(btn => {
+    btn.addEventListener('click', () => setRestDuration(parseInt(btn.dataset.sec)));
   });
+  document.getElementById('rest-start-btn').addEventListener('click', startRestTimer);
 
   startWorkout();
 }
@@ -329,7 +432,7 @@ function showEndConfirm() {
   overlay.innerHTML = `
     <div class="modal">
       <h3>Training beenden?</h3>
-      <p>Dein Workout wird gespeichert und du siehst deine Zusammenfassung.</p>
+      <p>Dein Workout wird automatisch gespeichert.</p>
       <div class="modal-actions">
         <button class="btn btn-primary" id="confirm-end">Ja, beenden</button>
         <button class="btn btn-secondary" id="cancel-end">Weiter trainieren</button>
@@ -542,9 +645,10 @@ function renderSummary() {
       `).join('')}
     </div>
 
+    <div class="summary-note">Workout gespeichert ✓</div>
     <div class="summary-actions">
-      <button class="btn btn-secondary" id="discard-btn">Verwerfen</button>
-      <button class="btn btn-primary" id="save-btn">Speichern</button>
+      <button class="btn btn-danger" id="delete-btn">Löschen</button>
+      <button class="btn btn-primary" id="ok-btn">Fertig</button>
     </div>
   `;
 }
@@ -671,15 +775,15 @@ function bindConnect() {
 }
 
 function bindSummary() {
-  document.getElementById('save-btn').addEventListener('click', () => {
-    if (state.pendingSummary) {
-      saveWorkoutToHistory(state.pendingSummary);
-      state.pendingSummary = null;
-    }
+  document.getElementById('ok-btn').addEventListener('click', () => {
+    state.pendingSummary = null;
     navigate('home');
   });
-  document.getElementById('discard-btn').addEventListener('click', () => {
-    state.pendingSummary = null;
+  document.getElementById('delete-btn').addEventListener('click', () => {
+    if (state.pendingSummary) {
+      deleteWorkoutFromHistory(state.pendingSummary.id);
+      state.pendingSummary = null;
+    }
     navigate('home');
   });
 }
@@ -739,15 +843,19 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 
-  // Load persisted data
   state.profile = loadProfile();
   state.history = loadHistory();
+  state.restDuration = parseInt(localStorage.getItem('pth_rest_duration')) || 120;
 
-  // Bottom nav
   document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', () => navigate(btn.dataset.view));
   });
 
-  // Initial route
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && state.view === 'connect' && !state.workout) {
+      navigate('home');
+    }
+  });
+
   navigate(state.profile ? 'home' : 'onboarding');
 });
