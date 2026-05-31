@@ -764,9 +764,10 @@ html, body {
 }
 .rest-unit {
   font-size: 22px;
-  color: var(--text-muted);
+  color: var(--accent);
   font-weight: 500;
   margin-left: 4px;
+  transition: color 0.3s;
 }
 .rest-presets {
   display: grid;
@@ -808,6 +809,21 @@ html, body {
   color: #22c55e;
   font-weight: 600;
   margin: -4px 16px 12px;
+}
+
+/* === QUOTE === */
+.quote-text {
+  font-size: 21px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  margin-bottom: 10px;
+}
+.quote-author {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 /* === TIMER PAGE === */

@@ -136,6 +136,45 @@ function disconnectBt() {
 
 // ─── WORKOUT ──────────────────────────────────────────────────────────────────
 
+// ─── QUOTES ───────────────────────────────────────────────────────────────────
+
+const QUOTES = [
+  { text: "Ich habe immer wieder versagt. Deshalb hatte ich Erfolg.", author: "Michael Jordan" },
+  { text: "Champions werden nicht im Gym gemacht — sie werden dort offenbart.", author: "Muhammad Ali" },
+  { text: "Blut, Schweiß und Respekt. Die ersten beiden gibst du. Das letzte verdienst du.", author: "Dwayne Johnson" },
+  { text: "Ruh dich am Ende aus, nicht mittendrin.", author: "Kobe Bryant" },
+  { text: "Sei der Härteste in jedem Raum.", author: "David Goggins" },
+  { text: "Ich bin nicht begabt. Ich habe es erarbeitet.", author: "Usain Bolt" },
+  { text: "Du weißt nicht, was du kannst, bis du keine Wahl mehr zu haben glaubst.", author: "David Goggins" },
+  { text: "Es erscheint immer unmöglich, bis es vollbracht ist.", author: "Nelson Mandela" },
+  { text: "Erfolg ist nicht endgültig. Scheitern ist nicht fatal. Was zählt, ist der Mut weiterzumachen.", author: "Winston Churchill" },
+  { text: "Der einzige Weg, großartige Arbeit zu leisten, ist zu lieben, was du tust.", author: "Steve Jobs" },
+  { text: "Du kontrollierst nicht alles, was dir passiert — aber ob es dich kleiner macht, entscheidest du.", author: "Maya Angelou" },
+  { text: "Wir sind es, auf die wir gewartet haben.", author: "Barack Obama" },
+  { text: "Hör auf zu reden. Tu es.", author: "Barack Obama" },
+  { text: "Ich bin nicht die nächste — ich bin die erste Simone Biles.", author: "Simone Biles" },
+  { text: "Disziplin ist Freiheit.", author: "Jocko Willink" },
+  { text: "Eine Championin erkennt man nicht nur an ihren Siegen — sondern daran, wie sie nach einem Fall wieder aufsteht.", author: "Serena Williams" },
+  { text: "Bin ich gut genug? Ja, das bin ich.", author: "Michelle Obama" },
+  { text: "Setz dich selbst weiter oben auf deine eigene Prioritätenliste.", author: "Michelle Obama" },
+  { text: "Macht wird dir nicht gegeben. Du musst sie dir nehmen.", author: "Beyoncé" },
+  { text: "Champions spielen weiter, bis sie es richtig machen.", author: "Billie Jean King" },
+  { text: "Talent ohne Arbeit ist nichts.", author: "Cristiano Ronaldo" },
+  { text: "Ich liebe Kritik. Sie macht dich stark.", author: "LeBron James" },
+  { text: "Fertig ist besser als perfekt.", author: "Sheryl Sandberg" },
+  { text: "Es ist immer der richtige Moment, das Richtige zu tun.", author: "Martin Luther King Jr." },
+  { text: "Mir egal, was andere sagen. Ich weiß, wofür ich hier bin.", author: "Lewis Hamilton" },
+  { text: "Die schwerste Einheit ist die, die du nicht machen wolltest.", author: null },
+  { text: "Glaub an dich, auch wenn du der Einzige bist, der das noch tut.", author: null },
+  { text: "Stärke wächst nicht aus dem, was du kannst — sie wächst aus dem, was du überwindest.", author: null },
+  { text: "Mach es heute. Dein zukünftiges Ich wird es dir danken.", author: null },
+];
+
+function getDailyQuote() {
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return QUOTES[dayOfYear % QUOTES.length];
+}
+
 const ZONE_COLORS = ['#6b7280', '#22c55e', '#D4A843', '#f97316', '#ef4444'];
 const ZONE_NAMES  = ['Zone 1 – Erholung', 'Zone 2 – Fettverbrennung', 'Zone 3 – Ausdauer', 'Zone 4 – Anaerob', 'Zone 5 – Maximum'];
 const ZONE_SHORT  = ['Z1', 'Z2', 'Z3', 'Z4', 'Z5'];
@@ -329,10 +368,13 @@ function stopRestTimer() {
 }
 
 function updateRestDisplay(remaining, total) {
-  const el = document.getElementById('rest-value');
+  const el     = document.getElementById('rest-value');
+  const unitEl = document.getElementById('rest-unit');
   if (!el) return;
   el.textContent = remaining;
-  el.style.color = remaining <= 10 ? '#ef4444' : 'var(--accent)';
+  const color = remaining <= 10 ? '#ef4444' : 'var(--accent)';
+  el.style.color = color;
+  if (unitEl) unitEl.style.color = color;
 }
 
 function switchWorkoutView(view) {
@@ -400,7 +442,7 @@ function showWorkoutView() {
       <div class="rest-section">
         <div class="rest-display">
           <span id="rest-value" class="rest-big">${savedDuration}</span>
-          <span class="rest-unit">s</span>
+          <span id="rest-unit" class="rest-unit">s</span>
         </div>
         <div class="rest-presets" id="rest-presets">
           ${[90,120,150,180].map(s => `
@@ -515,8 +557,8 @@ function renderHome() {
 
   return `
     <div class="home-hero">
-      ${p?.name ? `<div class="home-greeting">Hey, ${p.name}.</div>` : ''}
-      <h1 class="home-title">Bereit für<br>dein <span>Training?</span></h1>
+      <div class="quote-text">${getDailyQuote().text}</div>
+      ${getDailyQuote().author ? `<div class="quote-author">— ${getDailyQuote().author}</div>` : ''}
     </div>
 
     <div class="stats-strip">
@@ -670,7 +712,7 @@ function renderTimer() {
     <div class="timer-page">
       <div class="rest-display" style="margin-top:24px">
         <span id="rest-value" class="rest-big">${d}</span>
-        <span class="rest-unit">s</span>
+        <span id="rest-unit" class="rest-unit">s</span>
       </div>
       <div class="rest-presets" id="rest-presets">
         ${[90,120,150,180].map(s => `
